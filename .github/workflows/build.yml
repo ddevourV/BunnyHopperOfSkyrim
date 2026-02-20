@@ -1,0 +1,77 @@
+name: Build BunnyHopperOfSkyrim (AE) - FAST
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      SCCACHE_GHA_ENABLED: "true"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup sccache
+        uses: mozilla-actions/sccache-action@v0.0.6
+
+      - name: Cache vcpkg
+        uses: actions/cache@v4
+        with:
+          path: vcpkg
+          key: vcpkg-${{ runner.os }}-1
+          restore-keys: |
+            vcpkg-${{ runner.os }}-
+
+      - name: Cache FetchContent deps
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: deps-${{ runner.os }}-${{ hashFiles('CMakeLists.txt') }}
+          restore-keys: |
+            deps-${{ runner.os }}-
+
+      - name: Clone vcpkg (if missing)
+        shell: pwsh
+        run: |
+          if (!(Test-Path "vcpkg")) {
+            git clone --depth 1 https://github.com/microsoft/vcpkg.git
+          }
+          cd vcpkg
+          if (!(Test-Path ".\vcpkg.exe")) { .\bootstrap-vcpkg.bat }
+
+      - name: Install spdlog (classic mode)
+        shell: pwsh
+        run: |
+          .\vcpkg\vcpkg.exe install spdlog:x64-windows --classic
+
+      - name: Configure CMake
+        shell: pwsh
+        run: |
+          cmake -S . -B build -A x64 `
+            -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake" `
+            -DCMAKE_C_COMPILER_LAUNCHER=sccache `
+            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+
+      - name: Build (Release)
+        shell: pwsh
+        run: |
+          cmake --build build --config Release
+
+      - name: Package (Vortex)
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist\Data\SKSE\Plugins | Out-Null
+          Copy-Item build\out\Release\BunnyHopperOfSkyrim.dll dist\Data\SKSE\Plugins\ -Force
+          if (Test-Path BunnyHopperOfSkyrim.json) {
+            Copy-Item BunnyHopperOfSkyrim.json dist\Data\SKSE\Plugins\ -Force
+          }
+          Compress-Archive -Path dist\* -DestinationPath BunnyHopperOfSkyrim_Vortex.zip -Force
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BunnyHopperOfSkyrim_Vortex
+          path: BunnyHopperOfSkyrim_Vortex.zip
