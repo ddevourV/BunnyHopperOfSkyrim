@@ -22,6 +22,12 @@ if (NOT rapidcsv_POPULATED)
 endif()
 set(RAPIDCSV_INCLUDE_DIRS "${rapidcsv_SOURCE_DIR}/src" CACHE PATH "" FORCE)
 
+# --- CommonLib build options: disable VR ---
+set(ENABLE_SKYRIM_SE OFF CACHE BOOL "" FORCE)
+set(ENABLE_SKYRIM_AE ON  CACHE BOOL "" FORCE)
+set(ENABLE_SKYRIM_VR OFF CACHE BOOL "" FORCE)
+set(ENABLE_SKYRIMVR  OFF CACHE BOOL "" FORCE)
+
 # CommonLibSSE-NG
 FetchContent_Declare(
   CommonLibSSE
@@ -36,7 +42,6 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 add_library(BunnyHopperOfSkyrim SHARED ${SOURCES})
 target_link_libraries(BunnyHopperOfSkyrim PRIVATE CommonLibSSE::CommonLibSSE)
 
-# headers are in /include
 target_include_directories(BunnyHopperOfSkyrim PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
