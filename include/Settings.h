@@ -1,5 +1,14 @@
 #pragma once
 
+namespace Settings
+{
+    inline bool LoadSettings()
+    {
+        return true;
+    }
+}
+#pragma once
+
 #include "Json2Settings.h"
 
 namespace J2S = Json2Settings;
