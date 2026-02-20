@@ -95,12 +95,5 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 		return false;
 	}
 
-	if (Settings::LoadSettings()) {
-		_MESSAGE("Settings successfully loaded");
-	} else {
-		_FATALERROR("Settings failed to load!\n");
-		return false;
-	}
-
 	return true;
 }
