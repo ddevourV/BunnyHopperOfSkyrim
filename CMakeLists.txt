@@ -31,9 +31,9 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(CommonLibSSE)
 
-# All sources
+# sources
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
-file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "src/*.h" "src/*.hpp" "include/*.h" "include/*.hpp")
+file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "include/*.h" "include/*.hpp")
 
 add_library(BunnyHopperOfSkyrim SHARED
   ${SOURCES}
@@ -42,9 +42,8 @@ add_library(BunnyHopperOfSkyrim SHARED
 
 target_link_libraries(BunnyHopperOfSkyrim PRIVATE CommonLibSSE::CommonLibSSE)
 
-# ✅ IMPORTANT: make headers visible to .cpp files that do #include "Events.h" etc.
+# ✅ IMPORTANT: headers are in /include
 target_include_directories(BunnyHopperOfSkyrim PRIVATE
-  "${CMAKE_CURRENT_SOURCE_DIR}/src"
   "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
 
