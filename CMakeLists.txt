@@ -4,13 +4,12 @@ project(BunnyHopperOfSkyrim VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# быстрее и без лишних зависимостей
 set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
 
 include(FetchContent)
 
-# rapidcsv (header-only): только скачать, НЕ билдить
+# rapidcsv (header-only): download only
 FetchContent_Declare(
   rapidcsv
   GIT_REPOSITORY https://github.com/d99kris/rapidcsv.git
@@ -32,14 +31,22 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(CommonLibSSE)
 
-# собрать ВСЕ cpp из src (не надо угадывать имена файлов)
+# All sources
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
+file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "src/*.h" "src/*.hpp" "include/*.h" "include/*.hpp")
 
 add_library(BunnyHopperOfSkyrim SHARED
   ${SOURCES}
+  ${HEADERS}
 )
 
 target_link_libraries(BunnyHopperOfSkyrim PRIVATE CommonLibSSE::CommonLibSSE)
+
+# ✅ IMPORTANT: make headers visible to .cpp files that do #include "Events.h" etc.
+target_include_directories(BunnyHopperOfSkyrim PRIVATE
+  "${CMAKE_CURRENT_SOURCE_DIR}/src"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
 
 set_target_properties(BunnyHopperOfSkyrim PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/out"
