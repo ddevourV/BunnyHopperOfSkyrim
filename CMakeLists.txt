@@ -31,18 +31,12 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(CommonLibSSE)
 
-# sources
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
-file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "include/*.h" "include/*.hpp")
 
-add_library(BunnyHopperOfSkyrim SHARED
-  ${SOURCES}
-  ${HEADERS}
-)
-
+add_library(BunnyHopperOfSkyrim SHARED ${SOURCES})
 target_link_libraries(BunnyHopperOfSkyrim PRIVATE CommonLibSSE::CommonLibSSE)
 
-# ✅ IMPORTANT: headers are in /include
+# headers are in /include
 target_include_directories(BunnyHopperOfSkyrim PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
