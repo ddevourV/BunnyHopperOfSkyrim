@@ -22,13 +22,12 @@ if (NOT rapidcsv_POPULATED)
 endif()
 set(RAPIDCSV_INCLUDE_DIRS "${rapidcsv_SOURCE_DIR}/src" CACHE PATH "" FORCE)
 
-# --- CommonLib build options: disable VR ---
+# CommonLibSSE-NG (no VR)
 set(ENABLE_SKYRIM_SE OFF CACHE BOOL "" FORCE)
 set(ENABLE_SKYRIM_AE ON  CACHE BOOL "" FORCE)
 set(ENABLE_SKYRIM_VR OFF CACHE BOOL "" FORCE)
 set(ENABLE_SKYRIMVR  OFF CACHE BOOL "" FORCE)
 
-# CommonLibSSE-NG
 FetchContent_Declare(
   CommonLibSSE
   GIT_REPOSITORY https://github.com/CharmedBaryon/CommonLibSSE-NG.git
@@ -38,6 +37,11 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(CommonLibSSE)
 
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
+
+# ❌ отключаем модули, которые сейчас ломают сборку и не нужны для мувмента
+list(FILTER SOURCES EXCLUDE REGEX ".*/Visual\\.cpp$")
+list(FILTER SOURCES EXCLUDE REGEX ".*/Ram\\.cpp$")
+list(FILTER SOURCES EXCLUDE REGEX ".*/Settings\\.cpp$")
 
 add_library(BunnyHopperOfSkyrim SHARED ${SOURCES})
 target_link_libraries(BunnyHopperOfSkyrim PRIVATE CommonLibSSE::CommonLibSSE)
