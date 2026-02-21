@@ -1,3 +1,11 @@
+#ifndef DLLEXPORT
+#  ifdef _WIN32
+#    define DLLEXPORT __declspec(dllexport)
+#  else
+#    define DLLEXPORT
+#  endif
+#endif
+
 #include "Events.h"
 #include "version.h"
 #include "Strafe.h"
@@ -43,10 +51,6 @@ namespace
 
             return EventResult::kContinue;
         }
-
-    protected:
-        TESObjectLoadedHandler() = default;
-        ~TESObjectLoadedHandler() override = default;
     };
 
     void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
@@ -61,15 +65,12 @@ namespace
                 sourceHolder->AddEventSink<RE::TESObjectLoadedEvent>(TESObjectLoadedHandler::GetSingleton());
             }
 
-            // настройки мы сейчас заглушили (LoadSettings всегда true)
             Settings::LoadSettings();
-
-            spdlog::info("DataLoaded: event sinks registered.");
+            spdlog::info("DataLoaded: sinks registered.");
         }
     }
 }
 
-// New-style SKSE plugin version data (required for AE / SKSE 2.2.x)
 extern "C" DLLEXPORT constinit SKSE::PluginVersionData SKSEPlugin_Version = []() {
     SKSE::PluginVersionData v{};
     v.PluginVersion({ BHOS_VERSION_MAJOR, BHOS_VERSION_MINOR, BHOS_VERSION_PATCH });
@@ -85,14 +86,13 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
     SKSE::Init(a_skse);
     SetupLog();
 
-    spdlog::info("BunnyHopperOfSkyrim loaded (AE entrypoint).");
+    spdlog::info("BunnyHopperOfSkyrim loaded (AE).");
 
     if (auto* messaging = SKSE::GetMessagingInterface()) {
         messaging->RegisterListener(MessageHandler);
-    } else {
-        spdlog::error("Messaging interface not available.");
-        return false;
+        return true;
     }
 
-    return true;
+    spdlog::error("Messaging interface not available.");
+    return false;
 }
