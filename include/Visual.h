@@ -8,7 +8,7 @@
 class VisualController final : public IController
 {
 public:
-	enum class State : UInt32
+	enum class State : std::uint32_t
 	{
 		kFirstPerson = 901943132160,
 		kThirdPerson = 901943132169
